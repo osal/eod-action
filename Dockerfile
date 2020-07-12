@@ -3,7 +3,7 @@ FROM debian:10.4
 
 # install tools (git, GitHub CLI, AWS CLI)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends git && \
+    apt-get install -y --no-install-recommends git wget && \
     wget https://github.com/cli/cli/releases/download/v0.10.1/gh_0.10.1_linux_amd64.deb && \
     apt-get install -y ./gh_*_linux_amd64.deb && \
     rm ./gh_*_linux_amd64.deb && \
