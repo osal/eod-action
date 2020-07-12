@@ -7,7 +7,7 @@ echo $(aws --version)
 time=$(date)
 echo "::set-output name=time::$time"
 env
-
+ls -lR
 # TODO: get the list of changed/added files
 # TODO: for each file get the range of changed bars
 # TODO: for each file and range generate the patch
