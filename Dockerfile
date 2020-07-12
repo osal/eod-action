@@ -1,14 +1,21 @@
 # Container image that runs your code
 FROM debian:10.4
 
-# install tools (git, GitHub CLI, AWS CLI)
+# install tools (wget, unzip, git, GitHub CLI)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates git wget && \
+    apt-get install -y --no-install-recommends ca-certificates git wget unzip && \
     wget https://github.com/cli/cli/releases/download/v0.10.1/gh_0.10.1_linux_amd64.deb && \
     apt-get install -y ./gh_*_linux_amd64.deb && \
     rm ./gh_*_linux_amd64.deb && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# install AWS CLI
+RUN wget "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm ./awscliv2.zip && \
+    rm -r ./aws
 
 # configure git
 RUN git config --global user.name  "github action bot" && \
