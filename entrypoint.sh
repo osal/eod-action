@@ -20,7 +20,7 @@ echo udf info: $(udf version)
 git log | head
 git status
 cat $GITHUB_EVENT_PATH
-
+cat $GITHUB_EVENT_PATH | jq .commits
 # TODO: for each file get the range of changed bars
 # TODO: for each file and range generate the patch
 # TODO: for each file and range upload patch to S3 bucket
