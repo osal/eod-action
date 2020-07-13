@@ -22,6 +22,7 @@ echo udf info: $(udf version)
 git log | head
 git status
 BEFORE_HASH=$(cat $GITHUB_EVENT_PATH | jq .before)
+git fetch $BEFORE_HASH
 CHANGED_DATA_FILES=$(git diff --name-only $BEFORE_HASH | grep csv)
 echo $CHANGED_DATA_FILES
 # TODO: for each file get the range of changed bars
