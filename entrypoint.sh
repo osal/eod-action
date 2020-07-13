@@ -1,5 +1,7 @@
 #!/bin/sh -l
 
+set -x
+
 echo $(git version)
 echo $(gh --version)
 echo $(aws --version)
@@ -19,8 +21,9 @@ echo udf info: $(udf version)
 # get the list of changed/added CSV files
 git log | head
 git status
-cat $GITHUB_EVENT_PATH
-cat $GITHUB_EVENT_PATH | jq .commits
+BEFORE_HASH=$(cat $GITHUB_EVENT_PATH | jq .before)
+CHANGED_DATA_FILES=$(git diff --name-only $BEFORE_HASH | grep csv)
+echo $CHANGED_DATA_FILES
 # TODO: for each file get the range of changed bars
 # TODO: for each file and range generate the patch
 # TODO: for each file and range upload patch to S3 bucket
