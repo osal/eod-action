@@ -21,9 +21,9 @@ echo udf info: $(udf version)
 # get the list of changed/added CSV files
 git log | head
 git status
-BEFORE_HASH=$(cat $GITHUB_EVENT_PATH | jq .before)
-git fetch $BEFORE_HASH
-CHANGED_DATA_FILES=$(git diff --name-only $BEFORE_HASH | grep csv)
+PREVIOUS_HASH=$(cat $GITHUB_EVENT_PATH | jq .before)
+git fetch origin $PREVIOUS_HASH
+CHANGED_DATA_FILES=$(git diff --name-only $PREVIOUS_HASH | grep csv)
 echo $CHANGED_DATA_FILES
 # TODO: for each file get the range of changed bars
 # TODO: for each file and range generate the patch
