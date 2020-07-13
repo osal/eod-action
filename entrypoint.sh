@@ -21,9 +21,9 @@ echo udf info: $(udf version)
 # get the list of changed/added CSV files
 git log
 git status
-PREVIOUS_HASH=$(cat $GITHUB_EVENT_PATH | jq .before)
+PREVIOUS_HASH=$(cat $GITHUB_EVENT_PATH | jq .before | sed 's/"//g')
 git pull --unshallow
-git log | head && git branch && git status && git diff --name-only $PREVIOUS_HASH
+git log | head && git branch && git status && git diff --name-only HEAD..$PREVIOUS_HASH
 CHANGED_DATA_FILES=$(git diff --name-only $PREVIOUS_HASH | grep csv)
 echo $CHANGED_DATA_FILES
 # TODO: for each file get the range of changed bars
