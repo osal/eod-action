@@ -19,10 +19,11 @@ aws s3 cp ${UDF_RELEASE_BUCKET}/udf_r${UDF_RELEASE} ${UDF_PATH} --no-progress &&
 echo udf info: $(udf version)
 
 # get the list of changed/added CSV files
-git log | head
+git log
 git status
 PREVIOUS_HASH=$(cat $GITHUB_EVENT_PATH | jq .before)
 git pull --unshallow
+git log
 CHANGED_DATA_FILES=$(git diff --name-only $PREVIOUS_HASH | grep csv)
 echo $CHANGED_DATA_FILES
 # TODO: for each file get the range of changed bars
