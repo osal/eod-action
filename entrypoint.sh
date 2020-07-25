@@ -46,7 +46,7 @@ do
     for PATCH_FILE in $PATCH_FILES;
     do
         # copy patch files to the folder, adding a header
-        LINES=$(wc -l $PATCH_FILE)
+        LINES=$(cat $PATCH_FILE | wc -l)
         ARCHIVE_PATCH_FILE=$(basename ${PATCH_FILE%".patch"})
         echo "# series; $LINES; c" > $ARCHIVE_FOLDER/$ARCHIVE_PATCH_FILE
         cat $PATCH_FILE >> $ARCHIVE_FOLDER/$ARCHIVE_PATCH_FILE
