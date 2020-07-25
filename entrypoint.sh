@@ -1,5 +1,7 @@
 #!/bin/sh -l
 
+set -x
+
 echo $(git version)
 echo $(gh --version)
 echo $(aws --version)
@@ -20,7 +22,7 @@ CHANGED_DATA_FILES=$(git diff --name-only --diff-filter=AM $PREVIOUS_HASH..HEAD 
 # for each file get the range of changed bars
 for F in $CHANGED_DATA_FILES; do
     echo processing file $F
-    FIRST_LINE=$(git diff --unified=0  $PREVIOUS_HASH..HEAD $F | grep @@ | head -n1 | cut -f2 -d" "| cut -c2-)
+    FIRST_LINE=$(git diff --unified=0 $PREVIOUS_HASH..HEAD $F | grep @@ | head -n1 | cut -f2 -d" "| cut -c2-)
     PATCH_FILE=$F.patch
     tail -n +$FIRST_LINE $F > $PATCH_FILE
     echo patch for $F
