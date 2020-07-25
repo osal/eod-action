@@ -18,7 +18,11 @@ echo udf info: $(udf version)
 # get the list of changed/added CSV files
 PREVIOUS_HASH=$(cat $GITHUB_EVENT_PATH | jq .before | sed 's/"//g')
 git pull --unshallow
+
 CHANGED_DATA_FILES=$(git diff --name-only --diff-filter=AM $PREVIOUS_HASH..HEAD | grep csv)
+
+[ -z "$CHANGED_DATA_FILES" ] && exit 0
+
 # for each file get the range of changed bars
 for F in $CHANGED_DATA_FILES; do
     echo processing file $F
@@ -29,12 +33,30 @@ for F in $CHANGED_DATA_FILES; do
     tail -n +$FIRST_LINE $F > $PATCH_FILE
     echo patch for $F
     cat $PATCH_FILE
-    # TODO: generate the patch
-    # TODO: upload patch to S3 bucket
-    # TODO: create a task definition
-    # TODO: send created tasks to SQS
 done
 
+for GROUP in $(ls data); 
+do
+    # check if there are patch files for the group
+    PATCH_FILES=$(ls data/$GROUP/*.patch)
+    [ -z "$PATCH_FILES" ] && continue
+    # create a folder for archive
+    ARCHIVE_FOLDER="archives/$GROUP,eod,$(date -u +%Y%m%dT%H%M%S),D,now-epoch,reg"
+    mkdir -p $ARCHIVE_FOLDER
+    for PATCH_FILE in $PATCH_FILES;
+    do
+        # copy patch files to the folder, adding a header
+        LINES=$(wc -l $PATCH_FILE)
+        ARCHIVE_PATCH_FILE=$(basename ${PATCH_FILE%".patch"})
+        echo "# series; $LINES; c" > $ARCHIVE_FOLDER/$ARCHIVE_PATCH_FILE
+        cat $PATCH_FILE >> $ARCHIVE_FOLDER/$ARCHIVE_PATCH_FILE
+    done
+    # TODO: upload archive to S3
+    # TODO: create a task description for heater (JSON)
+    # TODO: send task to 
+done
+
+ls -lR archives
 
 
 
