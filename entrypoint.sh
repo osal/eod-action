@@ -41,8 +41,9 @@ do
     PATCH_FILES=$(ls data/$GROUP/*.patch)
     [ -z "$PATCH_FILES" ] && continue
     # create a folder for archive
-    ARCHIVE_FOLDER="archives/$GROUP,eod,$(date -u +%Y%m%dT%H%M%S),D,now-epoch,reg"
+    ARCHIVE_FOLDER="$GROUP,eod,$(date -u +%Y%m%dT%H%M%S),D,now-epoch,24x7,none"
     mkdir -p $ARCHIVE_FOLDER
+    declare -a SYMBOLS
     for PATCH_FILE in $PATCH_FILES;
     do
         # copy patch files to the folder, adding a header
@@ -50,11 +51,21 @@ do
         ARCHIVE_PATCH_FILE=$(basename ${PATCH_FILE%".patch"})
         echo "# series; $LINES; c" > $ARCHIVE_FOLDER/$ARCHIVE_PATCH_FILE
         cat $PATCH_FILE >> $ARCHIVE_FOLDER/$ARCHIVE_PATCH_FILE
+        SYMBOLS+=(${ARCHIVE_PATCH_FILE%".csv"})
     done
-    # TODO: upload archive to S3
-    # TODO: create a task description for heater (JSON)
+    PATCH_ARCHIVE=$ARCHIVE_FOLDER.tar.gz
+    tar -czvf $PATCH_ARCHIVE $ARCHIVE_FOLDER
+    # TODO: upload archive to S3 bucket
+    S3_COPY_CMD="aws s3 cp \"${PATCH_ARCHIVE}\" \"${HEATER_BUCKET}/${PATCH_ARCHIVE}\""
+    echo copy command: $S3_COPY_CMD
+    SYMBOL_PARAM=$( IFS=$','; echo "${SYMBOLS[*]}" )
+    HEATER_SEND_CMD="udf heater send --task-queue-name hub-heater-tasks-dev2.fifo \
+    --type=Put --get=archive \
+    --source=$PATCH_ARCHIVE \
+    -g=$GROUP -s=$SYMBOL_PARAM -r=D --session=24x7 --task-name=upload-eod-data-for-$GROUP --log -"
     # TODO: send task to heater
+    echo heater command: $HEATER_SEND_CMD
 done
 
-ls -lR archives
-cd archives && zip -r ../patch.zip .
+ls -l *.tar.gz
+
